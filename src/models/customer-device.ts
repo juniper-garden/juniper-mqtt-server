@@ -22,7 +22,7 @@ CustomerDevice.init({
   description: {
     type: DataTypes.STRING
   }
-},                 {
+},                  {
   // Other model options go here
   sequelize, // We need to pass the connection instance
   modelName: 'CustomerDevice',

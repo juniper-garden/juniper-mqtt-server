@@ -75,3 +75,7 @@ typings/
 dist/
 
 postgres-data/
+
+
+# Ignore DevSpace cache and log folder
+.devspace/

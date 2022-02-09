@@ -1,16 +1,15 @@
 import kafka from './kafka/kafka'
-import CustomerDevice from './models/customer-device';
-import validator from 'validator';
-import sequelize from './db';
-import validTopics from './valid-topics';
-import { Producer } from 'kafkajs';
-import SensorReading from './models/sensor-reading';
+import CustomerDevice from './models/customer-device'
+import validator from 'validator'
+import sequelize from './db'
+import validTopics from './valid-topics'
+import { Producer } from 'kafkajs'
+import SensorReading from './models/sensor-reading'
 const aedes = require('aedes')()
 const server = require('net').createServer(aedes.handle)
 const port = 1883
 
-let kProducer: Producer | null = null;
-
+let kProducer: Producer | null = null
 
 async function setupKafka() {
   const producer = kafka.producer()
@@ -18,9 +17,9 @@ async function setupKafka() {
   kProducer = producer
 }
 
-async function startDb(){
+async function startDb() {
   try {
-    
+
     await sequelize.authenticate()
     console.log('Connection has been established successfully.')
   } catch (error) {
@@ -41,14 +40,14 @@ aedes.authenticate = async (
   password: any,
   callback: any
 ) => {
-  let isValidUUID = validator.isUUID(username)
+  const isValidUUID = validator.isUUID(username)
 
-  if(!isValidUUID) {
+  if (!isValidUUID) {
     return callback(new Error('Invalid UUID'), false)
   }
 
-  const data = await SensorReading.findOne({ where: { customer_device_id: username }})
-  if(!data) {
+  const data = await SensorReading.findOne({ where: { customer_device_id: username } })
+  if (!data) {
     return callback(new Error('Invalid UUID'), false)
   }
 
@@ -56,7 +55,7 @@ aedes.authenticate = async (
 }
 
 // emitted when a client connects to the broker
-aedes.on('client', function (client: any) {
+aedes.on('client', (client: any) => {
   console.log(
     `[CLIENT_CONNECTED] Client ${client ? client.id : client
     } connected to broker ${aedes.id}`
@@ -64,7 +63,7 @@ aedes.on('client', function (client: any) {
 })
 
 // emitted when a client disconnects from the broker
-aedes.on('clientDisconnect', function (client: any) {
+aedes.on('clientDisconnect', (client: any) =>  {
   console.log(
     `[CLIENT_DISCONNECTED] Client ${client ? client.id : client
     } disconnected from the broker ${aedes.id}`
@@ -72,7 +71,7 @@ aedes.on('clientDisconnect', function (client: any) {
 })
 
 // emitted when a client subscribes to a message topic
-aedes.on('subscribe', function (subscriptions: any, client: any) {
+aedes.on('subscribe', (subscriptions: any, client: any) => {
   console.log(
     `[TOPIC_SUBSCRIBED] Client ${client ? client.id : client
     } subscribed to topics: ${subscriptions
@@ -82,7 +81,7 @@ aedes.on('subscribe', function (subscriptions: any, client: any) {
 })
 
 // emitted when a client unsubscribes from a message topic
-aedes.on('unsubscribe', function (subscriptions: any, client: any) {
+aedes.on('unsubscribe', (subscriptions: any, client: any) =>  {
   console.log(
     `[TOPIC_UNSUBSCRIBED] Client ${client ? client.id : client
     } unsubscribed to topics: ${subscriptions.join(',')} from broker ${aedes.id
@@ -91,10 +90,10 @@ aedes.on('unsubscribe', function (subscriptions: any, client: any) {
 })
 
 // emitted when a client publishes a message packet on the topic
-aedes.on('publish', async function (packet: any, client: any) {
+aedes.on('publish', async (packet: any, client: any) => {
   if (client) {
-    let splitTopic = packet.topic.split('/')
-    if(validTopics[splitTopic[0]]) {
+    const splitTopic = packet.topic.split('/')
+    if (validTopics[splitTopic[0]]) {
       await kProducer.send({
         topic: 'sensor-ingest',
         messages: [{ key: 'data', value: packet.payload.toString(), partition: 0 }]
