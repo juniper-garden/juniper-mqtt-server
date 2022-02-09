@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+  aedes:
+    container_name: aedes
+    image: moscajs/aedes:latest
+    restart: always
+    stop_signal: SIGINT
+    networks:
+      - mqtt
+    ports:
+      - '1883:1883'
+networks:
+  mqtt:
