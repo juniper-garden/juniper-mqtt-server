@@ -57,6 +57,12 @@ typings/
 # dotenv environment variables file
 .env
 
+# kubernetes deployment config
+juniper-mqtt-server-kubeconfig.yaml
+
+# devspace config
+devspace.yaml
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 

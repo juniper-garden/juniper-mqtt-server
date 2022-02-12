@@ -17,14 +17,14 @@ RUN mkdir -p /app
 # Set working directory to App dir
 WORKDIR /app
 
+EXPOSE 1883
+EXPOSE 8080
+EXPOSE 9229
 # Copy project files
 COPY . .
 
-# Create environment file
-RUN cp .env.example .env
-
 # Install dependencies
-RUN yarn install
 
+RUN yarn install
 RUN yarn build
 CMD ["yarn", "serve"]

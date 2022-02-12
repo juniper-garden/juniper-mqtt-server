@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juniper-mqtt-server
+  labels:
+    server_type: mqtt
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        server_type: mqtt
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: mqtt-server
+          image: registry.digitalocean.com/juniper-mqtt/juniper-mqtt
+          ports:
+            - name: devspace
+              containerPort: 9229
+              protocol: TCP
+            - name: mqtt
+              containerPort: 1883
+              protocol: TCP
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - web
+                topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
+    - name: mqtt
+      port: 1883
+      targetPort: 1883
+    - name: devspace
+      port: 9229
+      targetPort: 9229
+  selector:
+    app: 'juniper-mqtt-server'
