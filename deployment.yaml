@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: mqtt-server
-          image: registry.digitalocean.com/juniper-mqtt/juniper-mqtt
+          image: registry.digitalocean.com/juniper-mqtt/juniper-mqtt:v1.0.0
           ports:
             - name: devspace
               containerPort: 9229
@@ -41,6 +41,13 @@ spec:
                 topologyKey: kubernetes.io/hostname
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+data:
+  1883: "default/ingress-nginx:1883"
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: ingress-nginx
@@ -53,14 +60,18 @@ spec:
     - name: http
       port: 80
       targetPort: 80
+      protocol: "TCP"
     - name: https
       port: 443
       targetPort: 443
+      protocol: "TCP"
     - name: mqtt
       port: 1883
       targetPort: 1883
+      protocol: "TCP"
     - name: devspace
       port: 9229
       targetPort: 9229
+      protocol: "TCP"
   selector:
     app: 'juniper-mqtt-server'
