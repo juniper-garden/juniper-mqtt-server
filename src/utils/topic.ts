@@ -12,7 +12,7 @@ const topicStrategies: TopicStrategy[] = [
       const parsed = topic.split('/')
       return parsed.length === 5 && parsed[0] === 'jt_device_events'
     },
-    transform: (topic: string):any => {
+    transform: (topic: string): any => {
       const parts = topic.split('/')
       const [id] = parts.splice(3, 1)
       const parsed = parts.join('.')
@@ -44,9 +44,8 @@ function getTopicStrategy(uri: string, strategies: TopicStrategy[]) {
   return strategies.reduce((acc: TopicStrategy | null, strategy: TopicStrategy) => {
     if (acc == null) {
       return strategy.test(uri) ? strategy : acc
-    } 
-      return acc
-    
+    }
+    return acc
   },                       null)
 }
 
@@ -56,6 +55,6 @@ export async function transformTopic(topic: string): Promise<any> {
 
   if (!strategy) return ''
 
-  const _out = strategy.transform(topic)
-  return _out || topic
+  const out = strategy.transform(topic)
+  return out || topic
 }

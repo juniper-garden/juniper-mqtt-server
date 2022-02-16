@@ -7,13 +7,13 @@ import SensorReading from './models/sensor-reading'
 import { transformTopic } from './utils/topic'
 import OrganizationCredential from './models/organization-credential'
 import CustomerDevice from './models/customer-device'
-import HandlerMap from './handlers'
+import handlerMap from './handlers'
 const aedes = require('aedes')()
 const server = require('net').createServer(aedes.handle)
 const port = 1883
 
-const read_scopes = [4, 5]
-const write_scopes = [3, 5]
+const readScopes = [4, 5]
+const writeScopes = [3, 5]
 let kProducer: Producer | null = null
 
 async function setupKafka() {
@@ -45,13 +45,13 @@ aedes.authenticate = async (
   callback: any
 ) => {
   if (!username || !password) return callback(new Error('UNAUTHORIZED'), false)
-  if (username.toString() == process.env.MASTER_USER && password.toString() == process.env.MASTER_PASSWORD) {
+  if (username.toString() === process.env.MASTER_USER && password.toString() === process.env.MASTER_PASSWORD) {
     client.isAdmin = true
     return callback(null, true)
   }
-  console.log('client', process.env)
-  const cd:any = await CustomerDevice.findOne({ where: { id: username.toString() } })
-  const oc:any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } })
+
+  const cd: any = await CustomerDevice.findOne({ where: { id: username.toString() } })
+  const oc: any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } })
 
   if (!cd || !oc) {
     return callback(new Error('Invalid UUID'), false)
@@ -76,7 +76,7 @@ aedes.authorizeSubscribe = async (
   try {
     if (client.isAdmin) return callback(null, sub)
     if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if (!read_scopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
+    if (!readScopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -91,7 +91,7 @@ aedes.authorizePublish = async (
   try {
     if (client.isAdmin) return callback(null, sub)
     if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if (sub.topic.indexOf(client.device.id) == -1 || !write_scopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
+    if (sub.topic.indexOf(client.device.id) === -1 || !writeScopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -107,7 +107,7 @@ aedes.on('client', (client: any) => {
 })
 
 // emitted when a client disconnects from the broker
-aedes.on('clientDisconnect', (client: any) =>  {
+aedes.on('clientDisconnect', (client: any) => {
   console.log(
     `[CLIENT_DISCONNECTED] Client ${client ? client.id : client
     } disconnected from the broker ${aedes.id}`
@@ -122,7 +122,7 @@ aedes.on('subscribe', (subscriptions: any, client: any) => {
 })
 
 // emitted when a client unsubscribes from a message topic
-aedes.on('unsubscribe', (subscriptions: any, client: any) =>  {
+aedes.on('unsubscribe', (subscriptions: any, client: any) => {
   console.log(
     `[TOPIC_UNSUBSCRIBED] Client ${client ? client.id : client
     }`
@@ -134,7 +134,7 @@ aedes.on('publish', async (packet: any, client: any) => {
   if (client) {
     const topic = await transformTopic(packet.topic)
     if (topic.parent_topic === 'jt_device_events') {
-      HandlerMap[topic.action](client, topic.parsed, packet.payload, kProducer)
+      handlerMap[topic.action](client, topic.parsed, packet.payload, kProducer)
     }
   }
 })
