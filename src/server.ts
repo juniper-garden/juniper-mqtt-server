@@ -12,8 +12,8 @@ const aedes = require('aedes')()
 const server = require('net').createServer(aedes.handle)
 const port = 1883
 
-const read_scopes = [4,5]
-const write_scopes = [3,5]
+const read_scopes = [4, 5]
+const write_scopes = [3, 5]
 let kProducer: Producer | null = null
 
 async function setupKafka() {
@@ -43,16 +43,16 @@ aedes.authenticate = async (
   username: any,
   password: any,
   callback: any
-) => {  
-  if(!username || !password) return callback(new Error('UNAUTHORIZED'), false)
-  if(username.toString() == process.env.MASTER_USER && password.toString() == process.env.MASTER_PASSWORD) {
+) => {
+  if (!username || !password) return callback(new Error('UNAUTHORIZED'), false)
+  if (username.toString() == process.env.MASTER_USER && password.toString() == process.env.MASTER_PASSWORD) {
     client.isAdmin = true
     return callback(null, true)
   }
   console.log('client', process.env)
-  const cd:any = await CustomerDevice.findOne({where: {id: username.toString()}})
-  const oc:any = await OrganizationCredential.findOne({where: { key: password.toString(), grant_type: 0}})
-  
+  const cd:any = await CustomerDevice.findOne({ where: { id: username.toString() } })
+  const oc:any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } })
+
   if (!cd || !oc) {
     return callback(new Error('Invalid UUID'), false)
   }
@@ -74,9 +74,9 @@ aedes.authorizeSubscribe = async (
 ) => {
   // console.log('sb.topic', sub.topic, sub.topic == '$SYS/#' || sub.topic == '#')
   try {
-    if(client.isAdmin) return callback(null, sub) 
-    if(!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if( !read_scopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
+    if (client.isAdmin) return callback(null, sub)
+    if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
+    if (!read_scopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -89,9 +89,9 @@ aedes.authorizePublish = async (
   callback: any
 ) => {
   try {
-    if(client.isAdmin) return callback(null, sub) 
-    if(!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if(sub.topic.indexOf(client.device.id) == -1 || !write_scopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
+    if (client.isAdmin) return callback(null, sub)
+    if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
+    if (sub.topic.indexOf(client.device.id) == -1 || !write_scopes.includes(client.organization_credential.grant_scope)) return callback(new Error('UNAUTHORIZED'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -117,7 +117,7 @@ aedes.on('clientDisconnect', (client: any) =>  {
 // emitted when a client subscribes to a message topic
 aedes.on('subscribe', (subscriptions: any, client: any) => {
   console.log(
-    `[TOPIC_SUBSCRIBED] Client subscribed to topics:`,subscriptions
+    '[TOPIC_SUBSCRIBED] Client subscribed to topics:', subscriptions
   )
 })
 
@@ -133,7 +133,7 @@ aedes.on('unsubscribe', (subscriptions: any, client: any) =>  {
 aedes.on('publish', async (packet: any, client: any) => {
   if (client) {
     const topic = await transformTopic(packet.topic)
-    if(topic.parent_topic === 'jt_device_events') {
+    if (topic.parent_topic === 'jt_device_events') {
       HandlerMap[topic.action](client, topic.parsed, packet.payload, kProducer)
     }
   }

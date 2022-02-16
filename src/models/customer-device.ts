@@ -2,7 +2,6 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../db'
 
-
 // We export a function that defines the model.
 // This function will automatically receive as parameter the Sequelize connection object.
 

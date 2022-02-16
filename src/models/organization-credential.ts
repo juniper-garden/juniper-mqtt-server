@@ -20,14 +20,14 @@ OrganizationCredential.init({
   grant_type: {
     type: DataTypes.STRING
   },
-  
+
   grant_scope: {
     type: DataTypes.STRING
   },
   key: {
     type: DataTypes.STRING
   }
-},                 {
+},                          {
   // Other model options go here
   sequelize, // We need to pass the connection instance
   modelName: 'OrganizationCredential',
