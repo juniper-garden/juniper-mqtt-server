@@ -76,7 +76,7 @@ aedes.authorizeSubscribe = async (
   try {
     if (client.isAdmin) return callback(null, sub)
     if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if (readScopes.indexOf(client.organization_credential.grant_scope) == -1) return callback(new Error('UNAUTHORIZED'), false)
+    if (readScopes.indexOf(client.organization_credential.grant_scope) === -1) return callback(new Error('UNAUTHORIZED'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -91,7 +91,7 @@ aedes.authorizePublish = async (
   try {
     if (client.isAdmin) return callback(null, sub)
     if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if (sub.topic.indexOf(client.device.id) === -1 || writeScopes.indexOf(client.organization_credential.grant_scope) == -1) return callback(new Error('UNAUTHORIZED'), false)
+    if (sub.topic.indexOf(client.device.id) === -1 || writeScopes.indexOf(client.organization_credential.grant_scope) === -1) return callback(new Error('UNAUTHORIZED'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
