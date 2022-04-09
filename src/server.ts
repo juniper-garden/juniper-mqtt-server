@@ -50,9 +50,8 @@ aedes.authenticate = async (
     return callback(null, true)
   }
 
-  const cd: any = await CustomerDevice.findOne({ where: { id: username.toString() } })
-  const oc: any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } })
-
+  const cd: any = await CustomerDevice.findOne({ where: { id: username.toString() } }).catch(console.log)
+  const oc: any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } }).catch(console.log)
   if (!cd || !oc) {
     return callback(new Error('Invalid UUID'), false)
   }
@@ -90,8 +89,8 @@ aedes.authorizePublish = async (
 ) => {
   try {
     if (client.isAdmin) return callback(null, sub)
-    if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    if (sub.topic.indexOf(client.device.id) === -1 || writeScopes.indexOf(client.organization_credential.grant_scope) === -1) return callback(new Error('UNAUTHORIZED'), false)
+    if (!client._authorized) return callback(null, false)
+    if (sub.topic.indexOf(client.device.id) === -1 || writeScopes.indexOf(client.organization_credential.grant_scope) === -1) return callback(new Error('Unauthorized'), false)
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -135,7 +134,7 @@ aedes.on('publish', async (packet: any, client: any) => {
     const topic = await transformTopic(packet.topic)
     if (topic.parent_topic === 'jt_device_events') {
       if (!handlerMap[topic.action]) return
-      handlerMap[topic.action](client, topic.parsed, packet.payload, kProducer)
+      handlerMap[topic.action](client, topic, packet.payload, kProducer)
     }
   }
 })

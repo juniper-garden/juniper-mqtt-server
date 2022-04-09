@@ -36,3 +36,6 @@ describe('Transform topics into valid topics for juniper technology ingest stack
     expect(transformed).toBe("");
   });
 })
+
+
+// {"id":"e530abba-03e3-494d-ade6-e2111ea45ba7","timestamp":1649464260,"readings":[{"name":"absolute_humidity","unit":"g/m^3","value":6.678759},{"name":"absolute_humidity","unit":"g/m^3","value":6.678759}]}

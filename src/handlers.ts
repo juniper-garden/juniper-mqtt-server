@@ -1,11 +1,12 @@
+import moment from 'moment'
 
 export async function handleReadings(client: any, topic: any, payload: any, kProducer: any) {
   try {
     const parsedPayload = JSON.parse(payload.toString())
     if (topic.device_id !== '' && topic.device_id === parsedPayload.id) {
       await kProducer.send({
-        topic,
-        messages: [{ key: 'data', value: payload.toString() }]
+        topic: 'sensor-ingest',
+        messages: [{ key: 'data', value: JSON.stringify(parsedPayload) }]
       })
     }
   } catch (err) {
@@ -14,16 +15,40 @@ export async function handleReadings(client: any, topic: any, payload: any, kPro
 }
 
 export async function handleCommands(client: any, topic: any, payload: any, kProducer: any) {
+
   await kProducer.send({
-    topic,
-    messages: [{ key: 'data', value: payload.toString() }]
+    topic: topic.parsed,
+    messages: [{ key: 'data', value: JSON.stringify(payload) }]
   })
 }
 
 export async function handleLogs(client: any, topic: any, payload: any, kProducer: any) {
-  await kProducer.send({
-    topic,
-    messages: [{ key: 'data', value: payload.toString() }]
+  const payloadToString = payload.toString()
+  try {
+    const parsedJson = JSON.parse(payloadToString)
+    if (typeof parsedJson === 'string') {
+      return handleStringLog(topic, payloadToString, kProducer)
+    }
+
+    return await kProducer.send({
+      topic: topic.parsed,
+      messages: [{ key: 'data', value: JSON.stringify(parsedJson) }]
+    })
+  } catch (err) {
+    return handleStringLog(topic, payloadToString, kProducer)
+  }
+}
+
+async function handleStringLog(topic: any, payloadString: any, kProducer:any) {
+  const mappedPayload = {
+    id: topic.device_id,
+    log: payloadString,
+    timetamp: moment().unix()
+  }
+
+  return await kProducer.send({
+    topic: topic.parsed,
+    messages: [{ key: 'data', value: JSON.stringify(mappedPayload) }]
   })
 }
 
