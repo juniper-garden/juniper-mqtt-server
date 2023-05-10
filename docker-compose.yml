@@ -2,7 +2,7 @@ version: '3.7'
 services:
   aedes:
     container_name: aedes
-    image: registry.digitalocean.com/juniper-mqtt/juniper-mqtt:v1.0.5
+    image: registry.digitalocean.com/juniper-mqtt/juniper-mqtt:v1.0.7
     restart: always
     stop_signal: SIGINT
     networks:
