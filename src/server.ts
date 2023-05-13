@@ -155,7 +155,8 @@ aedes.on('unsubscribe', (subscriptions: any, client: any) => {
     `[TOPIC_UNSUBSCRIBED] Client ${client ? client.id : client
     }`
   )
-  const deviceId = client.device ? client.device.id : client.juniperDevice.id
+  const deviceId = client.device ? client.device?.id : client.juniperDevice?.id
+  if(!deviceId) return
   const publishPacket = {
     cmd: 'publish',
     qos: 0,
@@ -165,7 +166,7 @@ aedes.on('unsubscribe', (subscriptions: any, client: any) => {
     retain: false
   }
   aedes.publish(publishPacket)
-  handlerMap["logs"](client, `jt_device_events/device/v1/${deviceId}/logs`, "Disconnected from mqtt broker", kProducer)
+  // handlerMap["logs"](client, `jt_device_events/device/v1/${deviceId}/logs`, "Disconnected from mqtt broker", kProducer)
 })
 
 // emitted when a client publishes a message packet on the topic
