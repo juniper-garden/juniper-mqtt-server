@@ -1,6 +1,5 @@
 require('dotenv').config()
-import { Sequelize } from 'sequelize'
-import type { Options } from 'sequelize'
+import { Sequelize, Options } from 'sequelize'
 // In a real app, you should keep the database connection URL as an environment variable.
 // But for this example, we will just use a local SQLite database.
 // const sequelize = new Sequelize(process.env.DB_CONNECTION_URL);
