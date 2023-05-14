@@ -13,7 +13,7 @@ const options: Options = {
   logging: true,
   dialectOptions: {
     ssl: {
-      rejectUnauthorized: false 
+      rejectUnauthorized: false
     }
   }
 }

@@ -46,7 +46,7 @@ function getTopicStrategy(uri: string, strategies: TopicStrategy[]) {
       return strategy.test(uri) ? strategy : acc
     }
     return acc
-  }, null)
+  },                       null)
 }
 
 export async function transformTopic(topic: string): Promise<any> {

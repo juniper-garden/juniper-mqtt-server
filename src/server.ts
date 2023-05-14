@@ -55,7 +55,7 @@ aedes.authenticate = async (
   const cd: any = await CustomerDevice.findOne({ where: { id: username.toString() } }).catch(console.log)
   const oc: any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } }).catch(console.log)
   const jd: any = await JuniperDevice.findOne({ where: { id: username.toString() } }).catch(console.log)
-  
+
   if (jd) {
     client.juniperDevice = jd.dataValues
     client.username = username
@@ -70,7 +70,7 @@ aedes.authenticate = async (
     return callback(new Error('Invalid UUID'), false)
   }
 
-  if(jd && password.toString() !== process.env.MASTER_PASSWORD) {
+  if (jd && password.toString() !== process.env.MASTER_PASSWORD) {
     return callback(new Error('Invalid JuniperDevice Connection'), false)
   }
 
@@ -90,8 +90,8 @@ aedes.authorizeSubscribe = async (
   try {
     if (client.isAdmin) return callback(null, sub)
     if (!client._authorized) return callback(new Error('UNAUTHORIZED'), false)
-    
-    if(client.device) {
+
+    if (client.device) {
       if (sub.topic.indexOf(client.device.id) === -1 && readScopes.indexOf(client.organization_credential.grant_scope) === -1) return callback(new Error('UNAUTHORIZED'), false)
     }
     if (client.juniperDevice) {
@@ -112,14 +112,14 @@ aedes.authorizePublish = async (
   try {
     if (client.isAdmin) return callback(null, sub)
     if (!client._authorized) return callback(null, false)
-    
-    if(client.device) {
+
+    if (client.device) {
       if (sub.topic.indexOf(client.device.id) === -1 || writeScopes.indexOf(client.organization_credential.grant_scope) === -1) return callback(new Error('Unauthorized'), false)
     }
     if (client.juniperDevice) {
       if (sub.topic.indexOf(client.juniperDevice.id) === -1) return callback(new Error('Unauthorized'), false)
     }
-    
+
     return callback(null, sub)
   } catch (err) {
     return callback(null, null)
@@ -156,7 +156,7 @@ aedes.on('unsubscribe', (subscriptions: any, client: any) => {
     }`
   )
   const deviceId = client.device ? client.device?.id : client.juniperDevice?.id
-  if(!deviceId) return
+  if (!deviceId) return
   const publishPacket = {
     cmd: 'publish',
     qos: 0,
