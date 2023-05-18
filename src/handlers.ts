@@ -3,7 +3,7 @@ import moment from 'moment'
 export async function handleReadings(client: any, topic: any, payload: any, kProducer: any) {
   try {
     const parsedPayload = JSON.parse(payload.toString())
-    if (topic.device_id !== '' && topic.device_id === parsedPayload.id) {
+    if (topic.device_id !== '') {
       await kProducer.send({
         topic: 'sensor-ingest',
         messages: [{ key: 'data', value: JSON.stringify(parsedPayload) }]
