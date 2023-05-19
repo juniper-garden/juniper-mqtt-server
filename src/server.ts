@@ -56,8 +56,8 @@ aedes.authenticate = async (
   const oc: any = await OrganizationCredential.findOne({ where: { key: password.toString(), grant_type: 0 } }).catch(console.log)
   const jd: any = await JuniperDevice.findOne({ where: { id: username.toString() } }).catch(console.log)
 
-  if (jd) {
-    client.juniperDevice = jd.dataValues
+  if (jd && jd?.dataValues) {
+    client.juniperDevice = jd?.dataValues
     client.username = username
     return callback(null, true)
   }
@@ -76,7 +76,7 @@ aedes.authenticate = async (
 
   client.organization_credential = oc.dataValues
   client.device = cd.dataValues
-  client.juniperDevice = jd.dataValues
+  client.juniperDevice = jd?.dataValues
   client.username = username
   return callback(null, true)
 }
